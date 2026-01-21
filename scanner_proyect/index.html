@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scanner de Código C</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🔍 Scanner de Código C</h1>
+    </header>
+
+    <div class="controls">
+      <div class="control-group">
+        <label for="fileInput">📁 Cargar archivo .c</label>
+        <input type="file" id="fileInput" accept=".c">
+      </div>
+
+      <div class="control-group">
+        <label for="codeArea">💻 Código</label>
+        <textarea id="codeArea" placeholder="El código cargado aparecerá aquí o puedes escribir directamente..."></textarea>
+      </div>
+
+      <div class="button-group">
+        <button id="scanBtn">📊 Analizar Código</button>
+      </div>
+    </div>
+
+    <div class="stats" id="stats"></div>
+  </div>
+
+  <script src="scanner.js"></script>
+</body>
+</html>
