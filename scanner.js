@@ -302,7 +302,7 @@ function scanCode(){
 }
 
 function mostrarEstadisticas(stats){
-    let html = "<h2>📊 Estadísticas del Scanner (Modo Automata Estricto)</h2>";
+    let html = "<h2>📊 Estadísticas del Scanner</h2>";
     
     if (stats.errores.length > 0) {
         html += "<div style='background:#ffcccc; padding:10px; border:1px solid red; margin-bottom:10px;'>";
@@ -338,3 +338,4 @@ function mostrarEstadisticas(stats){
     html += "</table>";
     document.getElementById("stats").innerHTML = html;
 }
+
