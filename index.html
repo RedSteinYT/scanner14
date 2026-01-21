@@ -15,7 +15,14 @@
     <div class="controls">
       <div class="control-group">
         <label for="fileInput">📁 Cargar archivo .c</label>
-        <input type="file" id="fileInput" accept=".c">
+        <div class="file-input-wrapper">
+          <input type="file" id="fileInput" accept=".c">
+          <button type="button" class="file-input-button">Seleccionar archivo</button>
+          <span class="file-name">
+            <span class="file-text">Ningún archivo seleccionado</span>
+            <button type="button" id="clearBtn" class="clear-button" title="Limpiar archivo y código">✕</button>
+          </span>
+        </div>
       </div>
 
       <div class="control-group">
