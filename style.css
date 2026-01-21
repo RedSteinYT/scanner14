@@ -55,7 +55,125 @@ label {
     font-size: 0.95em;
 }
 
-input[type="file"],
+/* Ocultar el input de archivo original */
+input[type="file"] {
+    display: none;
+}
+
+/* Contenedor del input personalizado */
+.file-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: #f8f9ff;
+    border: 2px dashed #c5cae9;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.file-input-wrapper:hover {
+    border-color: #667eea;
+    background: #f0f3ff;
+}
+
+/* Botón de seleccionar archivo */
+.file-input-button {
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    white-space: nowrap;
+}
+
+.file-input-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+}
+
+.file-input-button:active {
+    transform: translateY(0);
+}
+
+/* Botón de limpiar */
+.clear-button {
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    max-width: 20px;
+    min-height: 20px;
+    max-height: 20px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 2px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.7em;
+    line-height: 1;
+    opacity: 0;
+    pointer-events: none;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.clear-button.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.clear-button:hover {
+    background: #5568d3;
+    transform: scale(1.15);
+}
+
+.clear-button:active {
+    transform: scale(0.95);
+}
+
+/* Nombre del archivo seleccionado */
+.file-name {
+    color: #999;
+    font-size: 0.9em;
+    font-style: italic;
+    flex: 1;
+    padding: 8px 12px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.file-name.selected {
+    color: #667eea;
+    font-weight: 600;
+    font-style: normal;
+    border: 2px solid #667eea;
+    background: #f8faff;
+    padding: 8px 12px;
+}
+
+.file-text {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 textarea {
     width: 100%;
     padding: 12px 15px;
@@ -66,12 +184,10 @@ textarea {
     transition: all 0.3s ease;
 }
 
-input[type="file"]:hover,
 textarea:hover {
     border-color: #667eea;
 }
 
-input[type="file"]:focus,
 textarea:focus {
     outline: none;
     border-color: #667eea;
