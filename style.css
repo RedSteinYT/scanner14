@@ -55,12 +55,10 @@ label {
     font-size: 0.95em;
 }
 
-/* Ocultar el input de archivo original */
 input[type="file"] {
     display: none;
 }
 
-/* Contenedor del input personalizado */
 .file-input-wrapper {
     display: flex;
     align-items: center;
@@ -78,7 +76,6 @@ input[type="file"] {
     background: #f0f3ff;
 }
 
-/* Botón de seleccionar archivo */
 .file-input-button {
     padding: 10px 20px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -101,7 +98,6 @@ input[type="file"] {
     transform: translateY(0);
 }
 
-/* Botón de limpiar */
 .clear-button {
     padding: 0;
     width: 20px;
@@ -141,7 +137,6 @@ input[type="file"] {
     transform: scale(0.95);
 }
 
-/* Nombre del archivo seleccionado */
 .file-name {
     color: #999;
     font-size: 0.9em;
@@ -292,6 +287,50 @@ td:nth-child(3) {
     font-size: 0.9em;
     word-break: break-word;
     max-width: 500px;
+}
+
+.error-container {
+    background-color: #fee2e2;
+    border: 1px solid #f87171;
+    border-left: 5px solid #dc2626;
+    color: #991b1b;
+    padding: 1rem;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    animation: slideIn 0.3s ease-out;
+}
+
+.error-header {
+    display: flex;
+    align-items: center;
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(220, 38, 38, 0.2);
+}
+
+.error-icon {
+    font-size: 1.4rem;
+    margin-right: 10px;
+}
+
+.error-list {
+    margin: 0;
+    padding-left: 20px;
+    list-style-type: disc;
+}
+
+.error-list li {
+    font-family: 'Consolas', 'Monaco', monospace;
+    margin-bottom: 5px;
+    font-size: 0.95rem;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 @media (max-width: 768px) {
