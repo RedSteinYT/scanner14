@@ -1,114 +1,98 @@
-// 1. Lista de palabras reservadas
-const reservedWords = new Set([
+const palabrasReservadas = new Set([
     "auto", "break", "case", "char", "const", "continue", "default", "do",
     "double", "else", "enum", "extern", "float", "for", "goto", "if",
     "int", "long", "register", "return", "short", "signed", "sizeof", "static",
-    "struct", "switch", "typedef", "union", "unsigned", "void", "volatile", "while",
-    // Eliminamos 'include' y 'define' porque el preprocesador los limpia
-    "main", "printf"
+    "struct", "switch", "typedef", "union", "unsigned", "void", "volatile", "while"
 ]);
 
-// 2. Símbolos conocidos
-const agrupacionSimbolos = new Set(["(", ")", "{", "}", "[", "]", ";", ","]);
+
+const simbolosAgrupacion = new Set(["(", ")", "{", "}", "[", "]", ";", ","]);
 const operadoresSimples = new Set(["+", "-", "*", "/", "%", "=", "<", ">", "!", "&", "|", "^", "~", "?", ".", ":"]);
 
-// Manejador del botón de archivo
-const fileInput = document.getElementById("fileInput");
-const fileButton = document.querySelector(".file-input-button");
-const fileNameSpan = document.querySelector(".file-name");
-const fileTextSpan = document.querySelector(".file-text");
-const clearBtn = document.getElementById("clearBtn");
-const codeArea = document.getElementById("codeArea");
+const entradaArchivo = document.getElementById("fileInput");
+const botonArchivo = document.querySelector(".file-input-button");
+const textoNombreArchivo = document.querySelector(".file-name");
+const textoArchivoSpan = document.querySelector(".file-text");
+const areaCodigo = document.getElementById("codeArea");
 
-// Función para limpiar archivo y código
-function clearFile() {
-    fileInput.value = "";
-    codeArea.value = "";
-    if(fileTextSpan) {
-        fileTextSpan.textContent = "Ningún archivo seleccionado";
-    }
-    if(fileNameSpan) {
-        fileNameSpan.classList.remove("selected");
-    }
-    if(clearBtn) {
-        clearBtn.classList.remove("visible");
-    }
+const botonX = document.getElementById("clearBtn");
+const botonLimpiarTotal = document.getElementById("cleanCodeBtn");
+
+function limpiarTodo() {
+    entradaArchivo.value = "";
+    areaCodigo.value = "";
+    
+    if(textoArchivoSpan) textoArchivoSpan.textContent = "Ningún archivo seleccionado";
+    if(textoNombreArchivo) textoNombreArchivo.classList.remove("selected");
+    
+    if(botonX) botonX.classList.remove("visible");
+    if(botonLimpiarTotal) botonLimpiarTotal.style.display = "none";
+    
+    document.getElementById("stats").innerHTML = "";
 }
 
-// Botón de limpiar
-if(clearBtn) {
-    clearBtn.addEventListener("click", clearFile);
+if(botonLimpiarTotal) {
+    botonLimpiarTotal.addEventListener("click", limpiarTodo);
 }
-
-// Evitar errores si los elementos del DOM no existen (por si acaso)
-if(fileButton) {
-    fileButton.addEventListener("click", function() {
-        fileInput.click();
-    });
+if(botonX) {
+    botonX.addEventListener("click", limpiarTodo);
 }
-
-if(fileInput) {
-    fileInput.addEventListener("change", function(e){
-        const file = e.target.files[0];
-        if(file){
-            if(fileTextSpan) {
-                fileTextSpan.textContent = file.name;
+if(botonArchivo) {
+    botonArchivo.addEventListener("click", () => entradaArchivo.click());
+}
+if(entradaArchivo) {
+    entradaArchivo.addEventListener("change", function(e){
+        const archivo = e.target.files[0];
+        
+        if(archivo){
+            if (!archivo.name.toLowerCase().endsWith(".c")) {
+                alert("Error: Solo se permiten archivos de código C (.c)");
+                limpiarTodo();
+                return; 
             }
-            if(fileNameSpan) {
-                fileNameSpan.classList.add("selected");
-            }
-            if(clearBtn) {
-                clearBtn.classList.add("visible");
-            }
-            const reader = new FileReader();
-            reader.onload = function(ev){
-                codeArea.value = ev.target.result;
+            if(textoArchivoSpan) textoArchivoSpan.textContent = archivo.name;
+            if(textoNombreArchivo) textoNombreArchivo.classList.add("selected");
+            if(botonX) botonX.classList.add("visible");
+            if(botonLimpiarTotal) botonLimpiarTotal.style.display = "block";
+            const lector = new FileReader();
+            lector.onload = function(ev){
+                areaCodigo.value = ev.target.result;
             };
-            reader.readAsText(file);
+            lector.readAsText(archivo);
         } else {
-            if(fileTextSpan) {
-                fileTextSpan.textContent = "Ningún archivo seleccionado";
-            }
-            if(fileNameSpan) {
-                fileNameSpan.classList.remove("selected");
-            }
-            if(clearBtn) {
-                clearBtn.classList.remove("visible");
+            limpiarTodo();
+        }
+    });
+}
+
+if(areaCodigo) {
+    areaCodigo.addEventListener("input", function() {
+        if(this.value.length > 0) {
+            if(botonLimpiarTotal) botonLimpiarTotal.style.display = "block";
+        } else {
+            if(!textoNombreArchivo.classList.contains("selected")) {
+                 if(botonLimpiarTotal) botonLimpiarTotal.style.display = "none";
             }
         }
     });
 }
 
-// Detectar cuando el usuario escribe en el textarea
-// Si hay un archivo cargado y el usuario edita, se mantiene el nombre pero se puede limpiar
-if(codeArea) {
-    codeArea.addEventListener("input", function() {
-        // Si hay texto y no hay archivo cargado, no mostramos nada especial
-        // Si hay archivo cargado y se edita, se mantiene el indicador
-        if(this.value.length > 0 && clearBtn) {
-            clearBtn.classList.add("visible");
-        } else if(this.value.length === 0) {
-            clearFile();
-        }
-    });
-}
+document.getElementById("scanBtn").addEventListener("click", analizarCodigo);
 
-document.getElementById("scanBtn").addEventListener("click", scanCode);
+// FUNCIONES AUXILIARES
+function esDigito(caracter) { return caracter >= '0' && caracter <= '9'; }
+function esDigitoHex(caracter) { return esDigito(caracter) || (caracter >= 'a' && caracter <= 'f') || (caracter >= 'A' && caracter <= 'F'); }
+function esAlfa(caracter) { return (caracter >= 'a' && caracter <= 'z') || (caracter >= 'A' && caracter <= 'Z') || caracter === '_'; }
+function esEspacio(caracter) { return caracter === ' ' || caracter === '\t' || caracter === '\r'; }
 
-// --- FUNCIONES AUXILIARES ---
-function isDigit(char) { return char >= '0' && char <= '9'; }
-function isHexDigit(char) { return isDigit(char) || (char >= 'a' && char <= 'f') || (char >= 'A' && char <= 'F'); }
-function isAlpha(char) { return (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z') || char === '_'; }
-function isSpace(char) { return char === ' ' || char === '\t' || char === '\r'; }
-
-// --- LÓGICA PRINCIPAL (AFD ESTRICTO) ---
-function scanCode(){
-    const code = document.getElementById("codeArea").value;
-    const length = code.length;
+// FUNCIÓN PRINCIPAL DEL SCANNER
+function analizarCodigo(){
+    const codigo = document.getElementById("codeArea").value;
+    const longitud = codigo.length;
     let i = 0;
     let lineaActual = 1;
 
-    const stats = {
+    const estadisticas = {
         variables: [],
         reservadas: [],
         enteros: [],
@@ -119,197 +103,186 @@ function scanCode(){
         errores: []
     };
 
-    while (i < length) {
-        const char = code[i];
+    while (i < longitud) {
+        const caracter = codigo[i];
 
-        // 0. CONTROL DE LÍNEAS
-        if (char === '\n') {
+        // CONTROL DE LINEAS
+        if (caracter === '\n') {
             lineaActual++;
             i++;
             continue;
         }
 
         // 1. IGNORAR ESPACIOS
-        if (isSpace(char)) {
+        if (esEspacio(caracter)) {
             i++;
             continue;
         }
 
-        // 2. IGNORAR PREPROCESADOR (#include, #define)
-        if (char === '#') {
-            while (i < length && code[i] !== '\n') {
+        // 2. IGNORAR PREPROCESADOR
+        if (caracter === '#') {
+            while (i < longitud && codigo[i] !== '\n') {
                 i++;
             }
             continue;
         }
 
-        // 3. DETECTAR COMENTARIOS Y DIVISIÓN
-        if (char === '/') {
-            const nextChar = code[i + 1];
-            if (nextChar === '/') { // Comentario de línea
+        // 3. DETECTAR COMENTARIOS
+        if (caracter === '/') {
+            const siguiente = codigo[i + 1];
+            if (siguiente === '/') { 
                 i += 2;
-                while (i < length && code[i] !== '\n') i++;
+                while (i < longitud && codigo[i] !== '\n') i++;
                 continue;
-            } else if (nextChar === '*') { // Comentario de bloque
+            } else if (siguiente === '*') {
                 i += 2;
-                while (i < length - 1 && !(code[i] === '*' && code[i + 1] === '/')) {
-                    if (code[i] === '\n') lineaActual++;
+                while (i < longitud - 1 && !(codigo[i] === '*' && codigo[i + 1] === '/')) {
+                    if (codigo[i] === '\n') lineaActual++;
                     i++;
                 }
                 i += 2; 
                 continue;
-            } else if (nextChar === '=') {
-                stats.operadores.push("/=");
+            } else if (siguiente === '=') {
+                estadisticas.operadores.push("/=");
                 i += 2;
                 continue;
             } else {
-                stats.operadores.push("/");
+                estadisticas.operadores.push("/");
                 i++;
                 continue;
             }
         }
 
         // 4. DETECTAR CADENAS
-        if (char === '"' || char === "'") {
-            const quoteType = char;
-            let str = char;
+        if (caracter === '"' || caracter === "'") {
+            const tipoComilla = caracter;
+            let cadena = caracter;
             i++;
-            while (i < length) {
-                if (code[i] === '\n') {
-                   stats.errores.push(`String sin cerrar en línea ${lineaActual}`);
+            while (i < longitud) {
+                if (codigo[i] === '\n') {
+                   estadisticas.errores.push(`String sin cerrar en línea ${lineaActual}`);
                    break; 
                 }
-                if (code[i] === '\\') {
-                    str += code[i]; i++; str += code[i];
+                if (codigo[i] === '\\') {
+                    cadena += codigo[i]; i++; cadena += codigo[i];
                 } else {
-                    if (code[i] === quoteType) {
-                        str += code[i]; i++; break;
+                    if (codigo[i] === tipoComilla) {
+                        cadena += codigo[i]; i++; break;
                     }
-                    str += code[i];
+                    cadena += codigo[i];
                 }
                 i++;
             }
-            stats.cadenas.push(str);
+            estadisticas.cadenas.push(cadena);
             continue;
         }
 
-        // 5. DETECTAR NÚMEROS (Con corrección para L, U, F)
-        if (isDigit(char)) {
+        // 5. DETECTAR NÚMEROS (Hex, Real, Entero)
+        if (esDigito(caracter)) {
             let num = "";
             
-            // Caso Hexadecimal (0x...)
-            if (char === '0' && (code[i+1] === 'x' || code[i+1] === 'X')) {
+            if (caracter === '0' && (codigo[i+1] === 'x' || codigo[i+1] === 'X')) {
                 num += "0x"; i += 2;
-                while (i < length && isHexDigit(code[i])) { num += code[i]; i++; }
+                while (i < longitud && esDigitoHex(codigo[i])) { num += codigo[i]; i++; }
             } 
             else {
-                // Caso Decimal / Real
-                let isReal = false;
-                while (i < length && isDigit(code[i])) { num += code[i]; i++; }
+                let esReal = false;
+                while (i < longitud && esDigito(codigo[i])) { num += codigo[i]; i++; }
                 
-                if (i < length && code[i] === '.') {
-                    isReal = true; num += '.'; i++;
-                    while (i < length && isDigit(code[i])) { num += code[i]; i++; }
+                if (i < longitud && codigo[i] === '.') {
+                    esReal = true; num += '.'; i++;
+                    while (i < longitud && esDigito(codigo[i])) { num += codigo[i]; i++; }
                 }
                 
-                if (i < length && (code[i] === 'e' || code[i] === 'E')) {
+                if (i < longitud && (codigo[i] === 'e' || codigo[i] === 'E')) {
                     let tempI = i + 1;
-                    if (tempI < length && (code[tempI] === '+' || code[tempI] === '-')) tempI++;
-                    if (tempI < length && isDigit(code[tempI])) {
-                        isReal = true; num += code[i]; i++;
-                        if (code[i] === '+' || code[i] === '-') { num += code[i]; i++; }
-                        while (i < length && isDigit(code[i])) { num += code[i]; i++; }
+                    if (tempI < longitud && (codigo[tempI] === '+' || codigo[tempI] === '-')) tempI++;
+                    if (tempI < longitud && esDigito(codigo[tempI])) {
+                        esReal = true; num += codigo[i]; i++;
+                        if (codigo[i] === '+' || codigo[i] === '-') { num += codigo[i]; i++; }
+                        while (i < longitud && esDigito(codigo[i])) { num += codigo[i]; i++; }
                     }
                 }
 
-                // --- DETECCIÓN DE SUFIJOS (L, U, F) ---
-                if (i < length) {
-                    const suffix = code[i];
-                    if (['l', 'L', 'u', 'U', 'f', 'F'].includes(suffix)) {
-                        num += suffix; 
-                        i++;
-                        // A veces hay dos (ej: 10UL), miramos uno más
-                        if (i < length && ['l', 'L', 'u', 'U'].includes(code[i])) {
-                            num += code[i]; 
-                            i++;
-                        }
-                    }
+                while (i < longitud && ['l', 'L', 'u', 'U', 'f', 'F'].includes(codigo[i])) {
+                    num += codigo[i];
+                    i++;
                 }
-                
-                if (isReal) stats.reales.push(num); else stats.enteros.push(num);
+                                
+                if (esReal) estadisticas.reales.push(num); else estadisticas.enteros.push(num);
                 continue;
             }
             
-            // Si fue Hexadecimal, también chequeamos sufijos (ej: 0xFFu)
-            if (i < length) {
-                const suffix = code[i];
-                if (['l', 'L', 'u', 'U'].includes(suffix)) {
-                    num += suffix; i++;
-                     if (i < length && ['l', 'L', 'u', 'U'].includes(code[i])) {
-                        num += code[i]; i++;
-                    }
-                }
+            while (i < longitud && ['l', 'L', 'u', 'U'].includes(codigo[i])) {
+                num += codigo[i];
+                i++;
             }
-            stats.enteros.push(num);
+            
+            estadisticas.enteros.push(num);
             continue;
         }
 
         // 6. DETECTAR IDENTIFICADORES
-        if (isAlpha(char)) {
-            let word = "";
-            while (i < length && (isAlpha(code[i]) || isDigit(code[i]))) {
-                word += code[i]; i++;
+        if (esAlfa(caracter)) {
+            let palabra = "";
+            while (i < longitud && (esAlfa(codigo[i]) || esDigito(codigo[i]))) {
+                palabra += codigo[i]; i++;
             }
-            if (reservedWords.has(word)) stats.reservadas.push(word);
-            else stats.variables.push(word);
+            if (palabrasReservadas.has(palabra)) estadisticas.reservadas.push(palabra);
+            else estadisticas.variables.push(palabra);
             continue;
         }
 
         // 7. DETECTAR OPERADORES Y ERRORES
-        // Primero miramos si hay operadores de 3 caracteres (<<=, >>=)
-        const threeChars = char + (code[i+1] || "") + (code[i+2] || "");
-        if (["<<=", ">>="].includes(threeChars)) {
-            stats.operadores.push(threeChars);
+        const tresCaracteres = caracter + (codigo[i+1] || "") + (codigo[i+2] || "");
+        if (["<<=", ">>="].includes(tresCaracteres)) {
+            estadisticas.operadores.push(tresCaracteres);
             i += 3;
             continue;
         }
 
-        // Luego miramos si hay operadores de 2 caracteres
-        const twoChars = char + (code[i+1] || ""); 
+        const dosCaracteres = caracter + (codigo[i+1] || ""); 
         const operadoresCompuestos = [
             "==", "!=", "<=", ">=", "&&", "||", "++", "--", 
             "->", "+=", "-=", "*=", "<<", ">>" 
         ];
 
-        if (operadoresCompuestos.includes(twoChars)) {
-            stats.operadores.push(twoChars);
+        if (operadoresCompuestos.includes(dosCaracteres)) {
+            estadisticas.operadores.push(dosCaracteres);
             i += 2;
             continue;
         }
 
-        // Finalmente operadores simples y agrupaciones
-        if (agrupacionSimbolos.has(char)) {
-            stats.agrupaciones.push(char);
-        } else if (operadoresSimples.has(char)) {
-            stats.operadores.push(char);
+        if (simbolosAgrupacion.has(caracter)) {
+            estadisticas.agrupaciones.push(caracter);
+        } else if (operadoresSimples.has(caracter)) {
+            estadisticas.operadores.push(caracter);
         } else {
-            stats.errores.push(`Carácter inválido '${char}' en línea ${lineaActual}`);
+            estadisticas.errores.push(`Carácter inválido '${caracter}' en línea ${lineaActual}`);
         }
         i++;
     }
 
-    mostrarEstadisticas(stats);
+    mostrarEstadisticas(estadisticas);
 }
 
 function mostrarEstadisticas(stats){
     let html = "<h2>📊 Estadísticas del Scanner</h2>";
     
     if (stats.errores.length > 0) {
-        html += "<div style='background:#ffcccc; padding:10px; border:1px solid red; margin-bottom:10px;'>";
-        html += "<h3 style='margin:0; color:red;'>⚠️ Errores Lexicográficos Encontrados:</h3>";
-        html += "<ul>";
-        stats.errores.forEach(err => html += `<li>${err}</li>`);
-        html += "</ul></div>";
+        html += `<div class="error-container">
+                    <div class="error-header">
+                        <span class="error-icon">⚠️</span>
+                        Errores Lexicográficos Encontrados:
+                    </div>
+                    <ul class="error-list">`;
+        
+        stats.errores.forEach(err => {
+            html += `<li>${err}</li>`;
+        });
+
+        html += `   </ul>
+                 </div>`;
     }
 
     html += "<table border='1' style='border-collapse: collapse; width: 100%;'>";
@@ -319,23 +292,25 @@ function mostrarEstadisticas(stats){
         if (tipo === 'errores') continue;
         if (stats[tipo].length === 0) continue;
         const elementos = stats[tipo].join(", ");
+        
+        let tipoLegible = tipo;
+
         html += `<tr>
-              <td style='text-transform: capitalize; font-weight:bold;'>${tipo}</td>
+              <td style='text-transform: capitalize; font-weight:bold;'>${tipoLegible}</td>
               <td>${stats[tipo].length}</td>
               <td style='font-family: monospace; word-break: break-all;'>${elementos}</td>
              </tr>`;
     }
     
     if (stats.reservadas.length > 0) {
-        const uniqueReservadas = [...new Set(stats.reservadas)];
+        const unicasReservadas = [...new Set(stats.reservadas)];
         html += `<tr>
               <td style='text-transform: capitalize; font-weight:bold;'>reservadas únicas</td>
-              <td>${uniqueReservadas.length}</td>
-              <td style='font-family: monospace; word-break: break-all;'>${uniqueReservadas.join(", ")}</td>
+              <td>${unicasReservadas.length}</td>
+              <td style='font-family: monospace; word-break: break-all;'>${unicasReservadas.join(", ")}</td>
              </tr>`;
     }
 
     html += "</table>";
     document.getElementById("stats").innerHTML = html;
 }
-
